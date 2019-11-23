@@ -1,5 +1,15 @@
 services: mongodb
 
+language: ruby
+
+rvm:
+  - 2.1
+  - 2.2
+  - 2.3
+  - 2.4
+  - 2.5
+  - 2.6
+
 gemfile:
   - spec/gemfiles/Gemfile.rails32
   - spec/gemfiles/Gemfile.rails40
@@ -11,66 +21,58 @@ gemfile:
   - spec/gemfiles/Gemfile.rails60
   - spec/gemfiles/Gemfile.master
 
-rvm:
-  - 2.1.10
-  - 2.2.10
-  - 2.3.8
-  - 2.4.6
-  - 2.5.5
-  - 2.6.3
-
 matrix:
   fast_finish: true
 
   exclude:
     - gemfile: 'spec/gemfiles/Gemfile.rails32'
-      rvm: 2.2.10
+      rvm: 2.2
     - gemfile: 'spec/gemfiles/Gemfile.rails32'
-      rvm: 2.3.8
+      rvm: 2.3
     - gemfile: 'spec/gemfiles/Gemfile.rails32'
-      rvm: 2.4.6
+      rvm: 2.4
     - gemfile: 'spec/gemfiles/Gemfile.rails32'
-      rvm: 2.5.5
+      rvm: 2.5
     - gemfile: 'spec/gemfiles/Gemfile.rails32'
-      rvm: 2.6.3
+      rvm: 2.6
     - gemfile: 'spec/gemfiles/Gemfile.rails40'
-      rvm: 2.4.6
+      rvm: 2.4
     - gemfile: 'spec/gemfiles/Gemfile.rails40'
-      rvm: 2.5.5
+      rvm: 2.5
     - gemfile: 'spec/gemfiles/Gemfile.rails40'
-      rvm: 2.6.3
+      rvm: 2.6
     - gemfile: 'spec/gemfiles/Gemfile.rails41'
-      rvm: 2.4.6
+      rvm: 2.4
     - gemfile: 'spec/gemfiles/Gemfile.rails41'
-      rvm: 2.5.5
+      rvm: 2.5
     - gemfile: 'spec/gemfiles/Gemfile.rails41'
-      rvm: 2.6.3
+      rvm: 2.6
     - gemfile: 'spec/gemfiles/Gemfile.rails50'
-      rvm: 2.0.0
+      rvm: 2.0
     - gemfile: 'spec/gemfiles/Gemfile.rails50'
-      rvm: 2.1.10
+      rvm: 2.1
     - gemfile: 'spec/gemfiles/Gemfile.rails50'
-      rvm: 2.6.3
+      rvm: 2.6
     - gemfile: 'spec/gemfiles/Gemfile.rails51'
-      rvm: 2.0.0
+      rvm: 2.0
     - gemfile: 'spec/gemfiles/Gemfile.rails51'
-      rvm: 2.1.10
+      rvm: 2.1
     - gemfile: 'spec/gemfiles/Gemfile.rails51'
-      rvm: 2.6.3
+      rvm: 2.6
     - gemfile: 'spec/gemfiles/Gemfile.rails52'
-      rvm: 2.0.0
+      rvm: 2.0
     - gemfile: 'spec/gemfiles/Gemfile.rails52'
-      rvm: 2.1.10
+      rvm: 2.1
     - gemfile: 'spec/gemfiles/Gemfile.rails60'
-      rvm: 2.0.0
+      rvm: 2.0
     - gemfile: 'spec/gemfiles/Gemfile.rails60'
-      rvm: 2.1.10
+      rvm: 2.1
     - gemfile: 'spec/gemfiles/Gemfile.rails60'
-      rvm: 2.2.10
+      rvm: 2.2
     - gemfile: 'spec/gemfiles/Gemfile.rails60'
-      rvm: 2.3.8
+      rvm: 2.3
     - gemfile: 'spec/gemfiles/Gemfile.rails60'
-      rvm: 2.4.6
+      rvm: 2.4
 
   allow_failures:
     - gemfile: 'spec/gemfiles/Gemfile.master'

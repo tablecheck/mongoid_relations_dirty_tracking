@@ -2,7 +2,6 @@
 
 require 'mongoid'
 require 'active_support/concern'
-require 'active_support/core_ext/module/aliasing'
 
 module Mongoid
   module RelationsDirtyTracking
@@ -20,7 +19,13 @@ module Mongoid
         to_track = (!options[:only].blank? && options[:only].include?(rel_name)) ||
                    (options[:only].blank? && !options[:except].include?(rel_name))
 
-        to_track && Mongoid::RelationsDirtyTracking.trackable_proxies.include?(relations[rel_name].try(:relation))
+        trackables = [Mongoid::Association::Embedded::EmbedsOne::Proxy,
+                      Mongoid::Association::Embedded::EmbedsMany::Proxy,
+                      Mongoid::Association::Referenced::HasOne::Proxy,
+                      Mongoid::Association::Referenced::HasMany::Proxy,
+                      Mongoid::Association::Referenced::HasAndBelongsToMany::Proxy,
+                      Mongoid::Association::Referenced::BelongsTo::Proxy]
+        to_track && trackables.include?(relations[rel_name].try(:relation))
       end
 
       def tracked_relations
@@ -68,92 +73,23 @@ module Mongoid
         meta = relations[rel_name]
         return nil unless meta
         case meta
-        when Mongoid::RelationsDirtyTracking.association_embeds_one
+        when Mongoid::Association::Embedded::EmbedsOne
           val = send(rel_name)
           val && val.attributes.clone.delete_if { |key, _| key == 'updated_at' }
-        when Mongoid::RelationsDirtyTracking.association_embeds_many
+        when Mongoid::Association::Embedded::EmbedsMany
           val = send(rel_name)
           val && val.map { |child| child.attributes.clone.delete_if { |key, _| key == 'updated_at' } }
-        when Mongoid::RelationsDirtyTracking.association_has_one
+        when Mongoid::Association::Referenced::HasOne
           send(rel_name) && { meta.key.to_s => send(rel_name)[meta.key] }
-        when Mongoid::RelationsDirtyTracking.association_has_many
+        when Mongoid::Association::Referenced::HasMany
           send(rel_name).map { |child| { meta.key.to_s => child.id } }
-        when Mongoid::RelationsDirtyTracking.association_habtm
+        when Mongoid::Association::Referenced::HasAndBelongsToMany
           send(rel_name).map { |child| { meta.primary_key.to_s => child.id } }
-        when Mongoid::RelationsDirtyTracking.association_belongs_to
+        when Mongoid::Association::Referenced::BelongsTo
           begin
             send(meta.foreign_key) && { meta.foreign_key.to_s => send(meta.foreign_key) }
           rescue ActiveModel::MissingAttributeError
-            nil
-          end
-        end
-      end
-    end
-
-    class << self
-      def association_belongs_to
-        if defined?(Mongoid::Association)
-          Mongoid::Association::Referenced::BelongsTo
-        else
-          Mongoid::Relations::Referenced::In
-        end
-      end
-
-      def association_has_one
-        if defined?(Mongoid::Association)
-          Mongoid::Association::Referenced::HasOne
-        else
-          Mongoid::Relations::Referenced::One
-        end
-      end
-
-      def association_has_many
-        if defined?(Mongoid::Association)
-          Mongoid::Association::Referenced::HasMany
-        else
-          Mongoid::Relations::Referenced::Many
-        end
-      end
-
-      def association_habtm
-        if defined?(Mongoid::Association)
-          Mongoid::Association::Referenced::HasAndBelongsToMany
-        else
-          Mongoid::Relations::Referenced::ManyToMany
-        end
-      end
-
-      def association_embeds_one
-        if defined?(Mongoid::Association)
-          Mongoid::Association::Embedded::EmbedsOne
-        else
-          Mongoid::Relations::Embedded::One
-        end
-      end
-
-      def association_embeds_many
-        if defined?(Mongoid::Association)
-          Mongoid::Association::Embedded::EmbedsMany
-        else
-          Mongoid::Relations::Embedded::Many
-        end
-      end
-
-      def trackable_associations
-        @trackable_associations ||= [association_belongs_to,
-                                     association_has_one,
-                                     association_has_many,
-                                     association_habtm,
-                                     association_embeds_one,
-                                     association_embeds_many]
-      end
-
-      def trackable_proxies
-        @trackable_proxies ||= begin
-          if defined?(Mongoid::Association)
-            trackable_associations.map { |mod| mod::Proxy }
-          else
-            trackable_associations
+            {}
           end
         end
       end

@@ -2,22 +2,17 @@
 
 require 'rubygems'
 require 'bundler/setup'
+require 'rspec'
+require 'rspec/its'
 require 'mongoid'
 require 'mongoid/relations_dirty_tracking'
 
-require 'rspec'
-require 'rspec/its'
-
-if defined?(::Mongo)
-  ::Mongo::Logger.logger.level = 2
-else
-  ::Moped.logger.level = 2
-end
+Mongo::Logger.logger.level = 2
 
 Mongoid.configure do |config|
   config.logger.level = 2
   config.connect_to('mongoid_relations_dirty_tracking_test')
-  config.belongs_to_required_by_default = false if config.respond_to?(:belongs_to_required_by_default)
+  config.belongs_to_required_by_default = false
 end
 
 RSpec.configure do |config|

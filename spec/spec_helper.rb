@@ -8,7 +8,7 @@ require 'mongoid/relations_dirty_tracking'
 require 'rspec'
 require 'rspec/its'
 
-if Mongoid::Config.respond_to_missing?(:belongs_to_required_by_default)
+if Mongoid::Config.respond_to?(:belongs_to_required_by_default)
   Mongoid::Config.belongs_to_required_by_default = false
 end
 

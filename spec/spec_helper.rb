@@ -8,6 +8,10 @@ require 'mongoid/relations_dirty_tracking'
 require 'rspec'
 require 'rspec/its'
 
+if Mongoid::Config.respond_to_missing?(:belongs_to_required_by_default)
+  Mongoid::Config.belongs_to_required_by_default = false
+end
+
 class TestDocument
   include Mongoid::Document
   include Mongoid::RelationsDirtyTracking
@@ -32,7 +36,7 @@ class TestRelatedDocument
   include Mongoid::Document
   include Mongoid::RelationsDirtyTracking
 
-  belongs_to :test_document, inverse_of: :one_related, optional: true
+  belongs_to :test_document, inverse_of: :one_related
 
   field :title, type: String
 end

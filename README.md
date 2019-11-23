@@ -30,16 +30,16 @@ doc.foo = Foo.new(title: 'foo')
 doc.bars << Bar.new(title: 'bar')
 doc.title = 'New title'
 
-doc.relations_changed?  # => true
-doc.relation_changes    # => {"foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [nil, [{"_id"=>"524c35ad1ac1c23084000083"}]]}
-doc.changed?            # => true
-doc.changes             # => {"title" => [nil, "New title"], "foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [nil, [{"_id"=>"524c35ad1ac1c23084000083"}]]}
+doc.relations_changed?      # => true
+doc.relation_changes        # => {"foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [nil, [{"_id"=>"524c35ad1ac1c23084000083"}]]}
+doc.changed_with_relations? # => true
+doc.changes_with_relations  # => {"title" => [nil, "New title"], "foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [nil, [{"_id"=>"524c35ad1ac1c23084000083"}]]}
 
 doc.save
-doc.relations_changed?  # => false
-doc.relation_changes    # => {}
-doc.changed?            # => false
-doc.changes             # => {}
+doc.relations_changed?      # => false
+doc.relation_changes        # => {}
+doc.changed_with_relations? # => false
+doc.changes_with_relations  # => {}
 ```
 
 ## Contributing

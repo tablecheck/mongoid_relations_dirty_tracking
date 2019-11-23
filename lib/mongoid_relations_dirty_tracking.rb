@@ -1,1 +1,3 @@
-require "mongoid/relations_dirty_tracking"
+# frozen_string_literal: true
+
+require 'mongoid/relations_dirty_tracking'

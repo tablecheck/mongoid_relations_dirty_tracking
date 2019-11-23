@@ -60,7 +60,7 @@ module Mongoid
       end
 
       def changes_with_relations
-        (changes || {}).merge relation_changes
+        (changes || {}).merge(relation_changes)
       end
 
       def tracked_relation_attributes(rel_name)

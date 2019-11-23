@@ -22,7 +22,7 @@ end
 
 RSpec.configure do |config|
   config.mock_with :rspec
-  config.after(:each) { Mongoid.purge! }
+  config.after(:all) { Mongoid.purge! }
 end
 
 class TestDocument

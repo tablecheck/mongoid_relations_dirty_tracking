@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['david.sevcik@gmail.com']
   spec.description   = 'Mongoid extension for tracking changes on document relations'
   spec.summary       = 'Mongoid extension for tracking changes on document relations'
-  spec.homepage      = 'http://github.com/versative/relations_dirty_tracking'
+  spec.homepage      = 'https://github.com/tablecheck/mongoid_relations_dirty_tracking'
   spec.license       = 'MIT'
 
   spec.add_runtime_dependency 'activesupport', '>= 5.1'

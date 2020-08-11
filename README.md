@@ -42,9 +42,12 @@ doc.changed_with_relations? # => false
 doc.changes_with_relations  # => {}
 ```
 
-## Global Disable
+### Global Disable
 
-Relations dirty tracking can be resource intensive. You may disable it for a block:
+Relations dirty tracking can be resource intensive.
+You may disable it for a block scope. This is thread-safe
+and will use the [RequestStore gem](https://github.com/steveklabnik/request_store)
+if it is included in your project.
 
 ```ruby
 Mongoid::RelationsDirtyTracking.disable do
@@ -64,3 +67,9 @@ end
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## Attribution
+
+Created 2013 by David Sevcik
+
+Maintenance from 2020 onward provided by [TableCheck](https://www.tablecheck.com/en/company/)

@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec-its', '~> 1.3'
   spec.add_development_dependency 'rubocop'
 
-  spec.files         = Dir.glob('lib/**/*') + %w[LICENSE.txt README.md]
+  spec.files         = Dir.glob('lib/**/*') + %w[LICENSE README.md]
   spec.test_files    = Dir.glob('spec/**/*')
   spec.require_paths = ['lib']
 end

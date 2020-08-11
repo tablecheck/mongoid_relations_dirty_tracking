@@ -349,7 +349,7 @@ describe Mongoid::RelationsDirtyTracking do
     end
   end
 
-  describe 'by befault the versions relation is not tracked' do
+  describe 'by default the versions relation is not tracked' do
     context "when not called 'relations_dirty_tracking'" do
       it "'versions' is excluded from tracing" do
         expect(Class.new(TestDocument).relations_dirty_tracking_options[:except]).to include('versions')
@@ -368,6 +368,30 @@ describe Mongoid::RelationsDirtyTracking do
         klass = Class.new(TestDocument) { relations_dirty_tracking(except: 'foobar') }
         expect(klass.relations_dirty_tracking_options[:except]).to include('versions')
         expect(klass.relations_dirty_tracking_options[:except]).to include('foobar')
+      end
+    end
+  end
+
+  describe 'global disablement' do
+    context 'when adding document' do
+      before :each do
+        @embedded_doc = TestEmbeddedDocument.new
+
+        described_class.disable do
+          subject.many_documents << @embedded_doc
+        end
+      end
+
+      its(:changed?)                { is_expected.to eq false }
+      its(:children_changed?)       { is_expected.to eq false }
+      its(:relations_changed?)      { is_expected.to eq false }
+      its(:changed_with_relations?) { is_expected.to eq false }
+      its(:changes_with_relations)  { is_expected.to_not include(subject.relation_changes) }
+
+      describe '#relation_changes' do
+        it 'returns array with differences' do
+          expect(subject.relation_changes['many_documents']).to eq(nil)
+        end
       end
     end
   end

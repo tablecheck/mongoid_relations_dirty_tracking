@@ -7,6 +7,30 @@ module Mongoid
   module RelationsDirtyTracking
     extend ActiveSupport::Concern
 
+    class << self
+      DISABLED_KEY = 'mongoid/relations_dirty_tracking/disabled'
+
+      # Runs a block without invoking relations dirty tracking on the current thread.
+      # Returns the block return value.
+      def disable
+        thread_store[DISABLED_KEY] = true
+        yield
+      ensure
+        thread_store[DISABLED_KEY] = false
+      end
+
+      # Returns whether relations dirty tracking is enabled on the current thread.
+      def enabled?
+        !thread_store[DISABLED_KEY]
+      end
+
+      protected
+
+      def thread_store
+        defined?(RequestStore) ? RequestStore.store : Thread.current
+      end
+    end
+
     module ClassMethods
       def relations_dirty_tracking(options = {})
         relations_dirty_tracking_options[:only]   += [options[:only]   || []].flatten.map(&:to_s)
@@ -42,12 +66,14 @@ module Mongoid
 
       def store_relations_shadow
         @relations_shadow = {}
+        return unless Mongoid::RelationsDirtyTracking.enabled?
         self.class.tracked_relations.each do |rel_name|
           @relations_shadow[rel_name] = tracked_relation_attributes(rel_name)
         end
       end
 
       def relation_changes
+        return {} unless Mongoid::RelationsDirtyTracking.enabled?
         changes = {}
         @relations_shadow.each_pair do |rel_name, shadow_values|
           current_values = tracked_relation_attributes(rel_name)

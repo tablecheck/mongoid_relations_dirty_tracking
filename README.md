@@ -42,6 +42,21 @@ doc.changed_with_relations? # => false
 doc.changes_with_relations  # => {}
 ```
 
+## Global Disable
+
+Relations dirty tracking can be resource intensive. You may disable it for a block:
+
+```ruby
+Mongoid::RelationsDirtyTracking.disable do
+  doc = SampleDocument.create
+  doc.foo = Foo.new(title: 'foo')
+  doc.bars << Bar.new(title: 'bar')
+
+  doc.relations_changed?      # => false
+  doc.relation_changes        # => {}
+end
+```
+
 ## Contributing
 
 1. Fork it

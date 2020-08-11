@@ -6,11 +6,16 @@ Mongoid extension for tracking changes on document relations.
 
 Add this line to your application's Gemfile:
 
-    gem 'mongoid_relations_dirty_tracking', github: 'versative/mongoid_relations_dirty_tracking'
+```ruby
+gem 'mongoid_relations_dirty_tracking'
+```
 
-And then execute:
+## Version Support
 
-    $ bundle
+This gem is CI tested using:
+
+- Rails 5.1, 5.2, and 6.0
+- Mongoid 7.0 and 7.1
 
 ## Usage
 

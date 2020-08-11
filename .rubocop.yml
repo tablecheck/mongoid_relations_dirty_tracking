@@ -4,6 +4,9 @@ Gemspec/RequiredRubyVersion:
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
+Layout/LineLength:
+  Max: 120
+
 Metrics/AbcSize:
   Enabled: false
 
@@ -12,9 +15,6 @@ Metrics/BlockLength:
 
 Metrics/CyclomaticComplexity:
   Enabled: false
-
-Metrics/LineLength:
-  Max: 120
 
 Metrics/MethodLength:
   Enabled: false

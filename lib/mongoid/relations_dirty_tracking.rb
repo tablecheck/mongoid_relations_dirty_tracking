@@ -49,6 +49,7 @@ module Mongoid
                       Mongoid::Association::Referenced::HasMany::Proxy,
                       Mongoid::Association::Referenced::HasAndBelongsToMany::Proxy,
                       Mongoid::Association::Referenced::BelongsTo::Proxy]
+
         to_track && trackables.include?(relations[rel_name].try(:relation))
       end
 
@@ -66,14 +67,14 @@ module Mongoid
 
       def store_relations_shadow
         @relations_shadow = {}
-        return unless Mongoid::RelationsDirtyTracking.enabled?
+        return if readonly? || !Mongoid::RelationsDirtyTracking.enabled?
         self.class.tracked_relations.each do |rel_name|
           @relations_shadow[rel_name] = tracked_relation_attributes(rel_name)
         end
       end
 
       def relation_changes
-        return {} unless Mongoid::RelationsDirtyTracking.enabled?
+        return {} if readonly? || !Mongoid::RelationsDirtyTracking.enabled?
         changes = {}
         @relations_shadow.each_pair do |rel_name, shadow_values|
           current_values = tracked_relation_attributes(rel_name)

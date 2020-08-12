@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Mongoid::RelationsDirtyTracking do
-  subject { TestDocument.create }
+  subject(:doc) { TestDocument.create }
 
   its(:changed?)                { is_expected.to eq false }
   its(:children_changed?)       { is_expected.to eq false }
@@ -372,26 +372,49 @@ describe Mongoid::RelationsDirtyTracking do
     end
   end
 
-  describe 'global disablement' do
-    context 'when adding document' do
-      before :each do
-        @embedded_doc = TestEmbeddedDocument.new
+  describe 'disable if readonly?' do
+    subject do
+      doc
+      TestDocument.all.only(:one_related_id).first
+    end
 
-        described_class.disable do
-          subject.many_documents << @embedded_doc
-        end
+    before :each do
+      @embedded_doc = TestEmbeddedDocument.new
+
+      subject.many_documents << @embedded_doc
+    end
+
+    its(:changed?)                { is_expected.to eq false }
+    its(:children_changed?)       { is_expected.to eq false }
+    its(:relations_changed?)      { is_expected.to eq false }
+    its(:changed_with_relations?) { is_expected.to eq false }
+    its(:changes_with_relations)  { is_expected.to_not include(subject.relation_changes) }
+
+    describe '#relation_changes' do
+      it 'returns array with differences' do
+        expect(subject.relation_changes['many_documents']).to eq(nil)
       end
+    end
+  end
 
-      its(:changed?)                { is_expected.to eq false }
-      its(:children_changed?)       { is_expected.to eq false }
-      its(:relations_changed?)      { is_expected.to eq false }
-      its(:changed_with_relations?) { is_expected.to eq false }
-      its(:changes_with_relations)  { is_expected.to_not include(subject.relation_changes) }
+  describe 'global disablement' do
+    before :each do
+      @embedded_doc = TestEmbeddedDocument.new
 
-      describe '#relation_changes' do
-        it 'returns array with differences' do
-          expect(subject.relation_changes['many_documents']).to eq(nil)
-        end
+      described_class.disable do
+        subject.many_documents << @embedded_doc
+      end
+    end
+
+    its(:changed?)                { is_expected.to eq false }
+    its(:children_changed?)       { is_expected.to eq false }
+    its(:relations_changed?)      { is_expected.to eq false }
+    its(:changed_with_relations?) { is_expected.to eq false }
+    its(:changes_with_relations)  { is_expected.to_not include(subject.relation_changes) }
+
+    describe '#relation_changes' do
+      it 'returns array with differences' do
+        expect(subject.relation_changes['many_documents']).to eq(nil)
       end
     end
   end

@@ -4,6 +4,7 @@
 .config
 .yardoc
 .idea
+.rakeTasks
 Gemfile.lock
 InstalledFiles
 _yardoc

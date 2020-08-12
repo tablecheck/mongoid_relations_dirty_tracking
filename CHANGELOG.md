@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2 - Aug 2020
+
+- Automatically disable relations dirty tracking for readonly documents.
+
 ## v0.2.1 - Aug 2020
 
 - Change homepage in gemspec to https://github.com/tablecheck/mongoid_relations_dirty_tracking

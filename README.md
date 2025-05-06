@@ -16,7 +16,7 @@ The latest version of this gem is CI tested using:
 
 - Mongoid 8.0+
 - Ruby 2.7+
-- Rails 7.0+
+- Rails 7.1+
 
 Please use earlier versions of this gem for legacy support.
 

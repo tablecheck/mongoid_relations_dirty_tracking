@@ -3,7 +3,7 @@
 ## v0.3.0 - May 2025
 
 - Support Mongoid 8.0, 8.1, and 9.0 (drop support for earlier versions)
-- Support Rails 7.0+ (drop support for earlier versions)
+- Support Rails 7.1+ (drop support for earlier versions)
 - Enable Github Actions CI.
 - Upgrade and fix Rubocop.
 

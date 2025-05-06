@@ -39,15 +39,15 @@ jobs:
           - jruby-9.4
           - truffleruby
         gemfile:
-          - rails70
           - rails71
           - rails72
           - rails80
           - master
         os:
           - ubuntu-latest
-          - macos-latest
-          - windows-latest
+          # supercharge/mongodb-github-action does not work on other OS
+          # - macos-latest
+          # - windows-latest
         exclude:
           - ruby: truffleruby
             os: windows-latest

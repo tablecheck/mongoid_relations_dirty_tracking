@@ -37,7 +37,6 @@ jobs:
           - ruby-3.3
           - ruby-3.4
           - jruby-9.4
-          - jruby-10.0
           - truffleruby
         gemfile:
           - rails71

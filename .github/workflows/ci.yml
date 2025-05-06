@@ -51,10 +51,24 @@ jobs:
         exclude:
           - ruby: truffleruby
             os: windows-latest
+          - ruby: ruby-2.7
+            gemfile: rails72
+          - ruby: ruby-2.7
+            gemfile: rails80
+          - ruby: ruby-3.0
+            gemfile: rails72
+          - ruby: ruby-3.0
+            gemfile: rails80
+          - ruby: ruby-3.1
+            gemfile: rails80
 
     steps:
       - name: repo checkout
         uses: actions/checkout@v3
+      - name: start mongodb
+        uses: supercharge/mongodb-github-action@1.12.0
+        with:
+          mongodb-version: 8.0
       - name: load ruby
         uses: ruby/setup-ruby@v1
         env:

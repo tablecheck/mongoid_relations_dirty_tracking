@@ -12,10 +12,13 @@ gem 'mongoid_relations_dirty_tracking'
 
 ## Version Support
 
-This gem is CI tested using:
+The latest version of this gem is CI tested using:
 
-- Rails 5.1, 5.2, and 6.0
-- Mongoid 7.0 and 7.1
+- Mongoid 8.0+
+- Ruby 2.7+
+- Rails 7.0+
+
+Please use earlier versions of this gem for legacy support.
 
 ## Usage
 

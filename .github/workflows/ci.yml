@@ -21,7 +21,7 @@ jobs:
         run: bundle exec rubocop --parallel
 
   test:
-    name: "${{matrix.ruby}} ${{matrix.os || 'ubuntu-latest'}}"
+    name: "${{matrix.ruby}} ${{matrix.gemfile}} ${{matrix.os || 'ubuntu-latest'}}"
     env:
       CI: true
     runs-on: ${{matrix.os || 'ubuntu-latest'}}
@@ -38,6 +38,12 @@ jobs:
           - ruby-3.4
           - jruby-9.4
           - truffleruby
+        gemfile:
+          - rails70
+          - rails71
+          - rails72
+          - rails80
+          - master
         os:
           - ubuntu-latest
           - macos-latest
@@ -51,11 +57,17 @@ jobs:
         uses: actions/checkout@v3
       - name: load ruby
         uses: ruby/setup-ruby@v1
+        env:
+          BUNDLE_GEMFILE: "gemfiles/Gemfile.${{matrix.gemfile}}"
         with:
           ruby-version: "${{matrix.ruby}}"
       - name: bundle
+        env:
+          BUNDLE_GEMFILE: "gemfiles/Gemfile.${{matrix.gemfile}}"
         run: bundle install --jobs 4 --retry 3
       - name: test
         timeout-minutes: 60
         continue-on-error: "${{matrix.experimental || false}}"
+        env:
+          BUNDLE_GEMFILE: "gemfiles/Gemfile.${{matrix.gemfile}}"
         run: bundle exec rake spec

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Mongoid::RelationsDirtyTracking do
+RSpec.describe Mongoid::RelationsDirtyTracking do
   subject(:doc) { TestDocument.create }
 
   its(:changed?)                { is_expected.to be false }
@@ -377,12 +377,6 @@ describe Mongoid::RelationsDirtyTracking do
     subject do
       doc
       TestDocument.all.only(:one_related_id).first
-    end
-
-    before do
-      @embedded_doc = TestEmbeddedDocument.new
-
-      subject.many_documents << @embedded_doc
     end
 
     its(:changed?)                { is_expected.to be false }

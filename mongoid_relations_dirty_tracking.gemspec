@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require File.expand_path('lib/mongoid/relations_dirty_tracking/version', __dir__)
+require_relative 'lib/mongoid/relations_dirty_tracking/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'mongoid_relations_dirty_tracking'
@@ -12,17 +12,9 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/tablecheck/mongoid_relations_dirty_tracking'
   spec.license       = 'MIT'
 
-  spec.add_runtime_dependency 'activesupport', '>= 5.1'
-  spec.add_runtime_dependency 'mongoid', '>= 7.0'
-
-  spec.add_development_dependency 'gem-release'
-  spec.add_development_dependency 'pry-byebug'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rspec', '~> 3.8.0'
-  spec.add_development_dependency 'rspec-its', '~> 1.3'
-  spec.add_development_dependency 'rubocop'
+  spec.add_dependency 'mongoid', '>= 9.0'
 
   spec.files         = Dir.glob('lib/**/*') + %w[LICENSE README.md]
-  spec.test_files    = Dir.glob('spec/**/*')
   spec.require_paths = ['lib']
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end

@@ -1,6 +1,4 @@
-source 'http://rubygems.org'
-
-gemspec path: '../../'
+eval_gemfile('../../Gemfile)
 
 gem 'activesupport', '~> 7.0.0'
 gem 'mongoid', '~> 8.0.0'

@@ -69,6 +69,7 @@ module Mongoid
         @relations_shadow = {}
         return if readonly? || !Mongoid::RelationsDirtyTracking.enabled?
         self.class.tracked_relations.each do |rel_name|
+          next if attribute_missing?(rel_name)
           @relations_shadow[rel_name] = tracked_relation_attributes(rel_name)
         end
       end
@@ -113,11 +114,7 @@ module Mongoid
         when Mongoid::Association::Referenced::HasAndBelongsToMany
           send(rel_name).map { |child| { meta.primary_key.to_s => child.id } }
         when Mongoid::Association::Referenced::BelongsTo
-          begin
-            send(meta.foreign_key) && { meta.foreign_key.to_s => send(meta.foreign_key) }
-          rescue ActiveModel::MissingAttributeError
-            {}
-          end
+          send(meta.foreign_key) && { meta.foreign_key.to_s => send(meta.foreign_key) }
         end
       end
     end

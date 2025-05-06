@@ -1,0 +1,89 @@
+---
+name: CI
+
+'on':
+  - push
+  - pull_request
+
+jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Ruby 3.4
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+          bundler-cache: true
+      - name: Run RuboCop
+        run: bundle exec rubocop --parallel
+
+  test:
+    name: "${{matrix.ruby}} ${{matrix.gemfile}} ${{matrix.os || 'ubuntu-latest'}}"
+    env:
+      CI: true
+    runs-on: ${{matrix.os || 'ubuntu-latest'}}
+    continue-on-error: "${{matrix.experimental || false}}"
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          - ruby-2.7
+          - ruby-3.0
+          - ruby-3.1
+          - ruby-3.2
+          - ruby-3.3
+          - ruby-3.4
+          - jruby-9.4
+          - truffleruby
+        gemfile:
+          - rails71
+          - rails72
+          - rails80
+          - master
+        os:
+          - ubuntu-latest
+          # supercharge/mongodb-github-action does not work on other OS
+          # - macos-latest
+          # - windows-latest
+        exclude:
+          - ruby: truffleruby
+            os: windows-latest
+          - ruby: ruby-2.7
+            gemfile: rails72
+          - ruby: ruby-2.7
+            gemfile: rails80
+          - ruby: ruby-3.0
+            gemfile: rails72
+          - ruby: ruby-3.0
+            gemfile: rails80
+          - ruby: ruby-3.1
+            gemfile: rails80
+          - ruby: jruby-9.4
+            gemfile: rails80
+
+    steps:
+      - name: repo checkout
+        uses: actions/checkout@v3
+      - name: start mongodb
+        uses: supercharge/mongodb-github-action@1.12.0
+        with:
+          mongodb-version: 8.0
+      - name: load ruby
+        uses: ruby/setup-ruby@v1
+        env:
+          BUNDLE_GEMFILE: "spec/gemfiles/Gemfile.${{matrix.gemfile}}"
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - name: bundle
+        env:
+          BUNDLE_GEMFILE: "spec/gemfiles/Gemfile.${{matrix.gemfile}}"
+        run: bundle install --jobs 4 --retry 3
+      - name: test
+        timeout-minutes: 60
+        continue-on-error: "${{matrix.experimental || false}}"
+        env:
+          BUNDLE_GEMFILE: "spec/gemfiles/Gemfile.${{matrix.gemfile}}"
+        run: bundle exec rake spec

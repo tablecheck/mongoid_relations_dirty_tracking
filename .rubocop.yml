@@ -1,3 +1,15 @@
+inherit_from: .rubocop_todo.yml
+
+plugins:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.7
+  NewCops: enable
+  SuggestExtensions: false
+
 Gemspec/RequiredRubyVersion:
   Enabled: false
 
@@ -24,6 +36,9 @@ Metrics/ModuleLength:
 
 Metrics/PerceivedComplexity:
   Enabled: false
+
+RSpec/NotToNot:
+  EnforcedStyle: to_not
 
 Style/Documentation:
   Enabled: false

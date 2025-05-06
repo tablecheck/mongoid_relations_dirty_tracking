@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.0 - May 2025
+
+- Support Mongoid 8.0, 8.1, and 9.0 (drop support for earlier versions)
+- Support Rails 7.1+ (drop support for earlier versions)
+- Enable Github Actions CI.
+- Upgrade and fix Rubocop.
+
 ## v0.2.2 - Aug 2020
 
 - Automatically disable relations dirty tracking for readonly documents.

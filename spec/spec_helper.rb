@@ -7,17 +7,29 @@ require 'rspec/its'
 require 'mongoid'
 require 'mongoid/relations_dirty_tracking'
 
-Mongo::Logger.logger.level = 2
+RSpec.configure do |config|
+  config.disable_monkey_patching!
 
-Mongoid.configure do |config|
-  config.logger.level = 2
-  config.connect_to('mongoid_relations_dirty_tracking_test')
-  config.belongs_to_required_by_default = false
+  config.expect_with :rspec do |expectations|
+    expectations.syntax = :expect
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  # TODO: Currently the order matters in the specs
+  # config.order = :random
+
+  config.after(:all) { Mongoid.purge! }
 end
 
-RSpec.configure do |config|
-  config.mock_with :rspec
-  config.after(:all) { Mongoid.purge! }
+Mongoid.configure do |config|
+  config.connect_to('mongoid_relations_dirty_tracking_test')
+  config.belongs_to_required_by_default = false
 end
 
 class TestDocument

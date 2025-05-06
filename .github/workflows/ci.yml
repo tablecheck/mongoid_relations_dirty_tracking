@@ -39,9 +39,9 @@ jobs:
           - jruby-9.4
           - truffleruby
         gemfile:
-          - rails71
-          - rails72
-          - rails80
+          - mongoid80
+          - mongoid81
+          - mongoid90
           - master
         os:
           - ubuntu-latest
@@ -52,17 +52,17 @@ jobs:
           - ruby: truffleruby
             os: windows-latest
           - ruby: ruby-2.7
-            gemfile: rails72
+            gemfile: mongoid81
           - ruby: ruby-2.7
-            gemfile: rails80
+            gemfile: mongoid90
           - ruby: ruby-3.0
-            gemfile: rails72
+            gemfile: mongoid81
           - ruby: ruby-3.0
-            gemfile: rails80
+            gemfile: mongoid90
           - ruby: ruby-3.1
-            gemfile: rails80
+            gemfile: mongoid90
           - ruby: jruby-9.4
-            gemfile: rails80
+            gemfile: mongoid90
 
     steps:
       - name: repo checkout

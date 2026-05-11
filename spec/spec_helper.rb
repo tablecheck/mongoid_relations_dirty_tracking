@@ -28,7 +28,8 @@ RSpec.configure do |config|
 end
 
 Mongoid.configure do |config|
-  config.connect_to('mongoid_relations_dirty_tracking_test')
+  hosts = ENV['MONGODB_HOSTS']&.split(',') || %w[localhost:27017]
+  config.clients.default = { hosts: hosts, database: 'mongoid_relations_dirty_tracking_test' }
   config.belongs_to_required_by_default = false
 end
 
@@ -42,6 +43,9 @@ class TestDocument
   has_one     :one_related,    class_name: 'TestRelatedDocument'
   has_many    :many_related,   class_name: 'TestRelatedDocument'
   has_and_belongs_to_many :many_to_many_related, class_name: 'TestRelatedDocument'
+
+  # Tests cover both embedded and referenced behaviour, so opt in.
+  relations_dirty_tracking track_referenced: true
 end
 
 class TestEmbeddedDocument
@@ -59,6 +63,8 @@ class TestRelatedDocument
   belongs_to :test_document, inverse_of: :one_related
 
   field :title, type: String
+
+  relations_dirty_tracking track_referenced: true
 end
 
 class TestDocumentWithOnlyOption
@@ -78,5 +84,15 @@ class TestDocumentWithExceptOption
   embeds_many :many_documents,  class_name: 'TestEmbeddedDocument'
   has_one     :one_related,     class_name: 'TestRelatedDocument'
 
-  relations_dirty_tracking except: 'many_documents'
+  relations_dirty_tracking except: 'many_documents', track_referenced: true
+end
+
+# Default behaviour as of v1.0.0: embedded relations tracked, referenced ignored.
+class TestDocumentDefault
+  include Mongoid::Document
+  include Mongoid::RelationsDirtyTracking
+
+  embeds_many :many_documents, class_name: 'TestEmbeddedDocument'
+  has_one     :one_related,    class_name: 'TestRelatedDocument'
+  has_many    :many_related,   class_name: 'TestRelatedDocument'
 end

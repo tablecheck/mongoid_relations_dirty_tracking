@@ -7,6 +7,18 @@ module Mongoid
   module RelationsDirtyTracking
     extend ActiveSupport::Concern
 
+    EMBEDDED_TRACKABLES = [
+      Mongoid::Association::Embedded::EmbedsOne::Proxy,
+      Mongoid::Association::Embedded::EmbedsMany::Proxy
+    ].freeze
+
+    REFERENCED_TRACKABLES = [
+      Mongoid::Association::Referenced::HasOne::Proxy,
+      Mongoid::Association::Referenced::HasMany::Proxy,
+      Mongoid::Association::Referenced::HasAndBelongsToMany::Proxy,
+      Mongoid::Association::Referenced::BelongsTo::Proxy
+    ].freeze
+
     class << self
       DISABLED_KEY = 'mongoid/relations_dirty_tracking/disabled'
 
@@ -32,9 +44,17 @@ module Mongoid
     end
 
     module ClassMethods
+      # Configure relations dirty tracking for this class.
+      #
+      # @option options [Array<Symbol,String>] :only Track only the listed relations.
+      # @option options [Array<Symbol,String>] :except Skip the listed relations.
+      # @option options [Boolean] :track_referenced Also track referenced relations
+      #   (has_one, has_many, has_and_belongs_to_many, belongs_to). Defaults to
+      #   `false` — only embedded relations are tracked by default for performance.
       def relations_dirty_tracking(options = {})
         relations_dirty_tracking_options[:only]   += [options[:only]   || []].flatten.map(&:to_s)
         relations_dirty_tracking_options[:except] += [options[:except] || []].flatten.map(&:to_s)
+        relations_dirty_tracking_options[:track_referenced] = true if options[:track_referenced]
       end
 
       def track_relation?(rel_name)
@@ -43,12 +63,8 @@ module Mongoid
         to_track = (!options[:only].blank? && options[:only].include?(rel_name)) ||
                    (options[:only].blank? && !options[:except].include?(rel_name))
 
-        trackables = [Mongoid::Association::Embedded::EmbedsOne::Proxy,
-                      Mongoid::Association::Embedded::EmbedsMany::Proxy,
-                      Mongoid::Association::Referenced::HasOne::Proxy,
-                      Mongoid::Association::Referenced::HasMany::Proxy,
-                      Mongoid::Association::Referenced::HasAndBelongsToMany::Proxy,
-                      Mongoid::Association::Referenced::BelongsTo::Proxy]
+        trackables = EMBEDDED_TRACKABLES
+        trackables += REFERENCED_TRACKABLES if options[:track_referenced]
 
         to_track && trackables.include?(relations[rel_name].try(:relation))
       end
@@ -63,7 +79,7 @@ module Mongoid
       after_save       :store_relations_shadow
 
       cattr_accessor :relations_dirty_tracking_options
-      self.relations_dirty_tracking_options = { only: [], except: ['versions'] }
+      self.relations_dirty_tracking_options = { only: [], except: ['versions'], track_referenced: false }
 
       def store_relations_shadow
         @relations_shadow = {}

@@ -28,7 +28,7 @@ class SampleDocument
   include Mongoid::RelationsDirtyTracking
 
   embeds_one  :foo
-  has_many    :bars
+  embeds_many :bars
 
   field :title, type: String
 end
@@ -39,15 +39,42 @@ doc.bars << Bar.new(title: 'bar')
 doc.title = 'New title'
 
 doc.relations_changed?      # => true
-doc.relation_changes        # => {"foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [nil, [{"_id"=>"524c35ad1ac1c23084000083"}]]}
+doc.relation_changes        # => {"foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [[], [{"_id"=>"524c35ad1ac1c23084000083", "title"=>"bar"}]]}
 doc.changed_with_relations? # => true
-doc.changes_with_relations  # => {"title" => [nil, "New title"], "foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [nil, [{"_id"=>"524c35ad1ac1c23084000083"}]]}
+doc.changes_with_relations  # => {"title" => [nil, "New title"], "foo" => [nil, {"_id"=>"524c35ad1ac1c23084000040", "title" => "foo"}], "bars" => [[], [{"_id"=>"524c35ad1ac1c23084000083", "title"=>"bar"}]]}
 
 doc.save
 doc.relations_changed?      # => false
 doc.relation_changes        # => {}
 doc.changed_with_relations? # => false
 doc.changes_with_relations  # => {}
+```
+
+By default only **embedded** relations (`embeds_one`, `embeds_many`) are
+tracked. To also track referenced relations (`has_one`, `has_many`,
+`has_and_belongs_to_many`, `belongs_to`), opt in per class:
+
+```ruby
+class SampleDocument
+  include Mongoid::Document
+  include Mongoid::RelationsDirtyTracking
+
+  embeds_many :tags
+  has_many    :comments
+  belongs_to  :author
+
+  relations_dirty_tracking track_referenced: true
+end
+```
+
+You can still narrow tracking further with `:only` and `:except`. These
+filters are applied **within** the set of trackable relations selected by
+`:track_referenced`:
+
+```ruby
+relations_dirty_tracking only: %i[tags]                            # embedded only, only :tags
+relations_dirty_tracking only: %i[tags comments], track_referenced: true
+relations_dirty_tracking except: %i[tags], track_referenced: true  # everything except :tags
 ```
 
 ## Disablement
@@ -90,6 +117,84 @@ Mongoid::RelationsDirtyTracking.disable do
   doc.relation_changes   # => {}
 end
 ```
+
+## Upgrading from 0.x
+
+**v1.0.0 narrowed the default trackables to embedded relations only.** Earlier
+versions tracked every kind of relation (embedded, has_one, has_many, HABTM,
+belongs_to) by default. We changed the default because tracking referenced
+relations forces those associations to be loaded on every `after_initialize`
+and `after_save` callback — a significant cost when documents are read in bulk
+or via background jobs.
+
+### How to tell if you are affected
+
+You are affected if any class in your application includes
+`Mongoid::RelationsDirtyTracking` **and** relies on dirty tracking for
+`has_one`, `has_many`, `has_and_belongs_to_many`, or `belongs_to` associations.
+A class is *not* affected if it only uses dirty tracking for `embeds_one` /
+`embeds_many` associations.
+
+A quick way to audit your codebase:
+
+```bash
+grep -rln "include Mongoid::RelationsDirtyTracking" app/ lib/
+```
+
+For each match, check whether the class actually consumes `relation_changes` /
+`changes_with_relations` / `relations_changed?` for a referenced relation
+(typically read by audit logs, `mongoid-history` callbacks, push-sync hooks,
+etc.).
+
+### Restoring the v0.x behaviour
+
+If you were depending on referenced relation tracking, add
+`track_referenced: true` to the macro call:
+
+```ruby
+# Before (v0.x — tracked everything by default)
+class Order
+  include Mongoid::Document
+  include Mongoid::RelationsDirtyTracking
+
+  embeds_many :items
+  has_many    :payments
+end
+
+# After (v1.0 — restore previous behaviour for this class)
+class Order
+  include Mongoid::Document
+  include Mongoid::RelationsDirtyTracking
+
+  embeds_many :items
+  has_many    :payments
+
+  relations_dirty_tracking track_referenced: true
+end
+```
+
+If you already call `relations_dirty_tracking` with `:only` or `:except`, add
+the option to that call:
+
+```ruby
+# Before (v0.x)
+relations_dirty_tracking only: %i[items payments]
+
+# After (v1.0)
+relations_dirty_tracking only: %i[items payments], track_referenced: true
+```
+
+### When you can leave the new default
+
+Most callers can leave the new default and benefit from the speedup. Common
+cases where referenced tracking is *not* needed:
+
+- You only track embedded sub-documents (e.g. line items, addresses).
+- You use the gem to invalidate a cache or trigger a webhook when an embedded
+  collection changes.
+- Your referenced relations are also tracked through their own
+  `mongoid-history` / audit hooks on the **referenced** side, making the
+  parent-side tracking redundant.
 
 ## Contributing
 

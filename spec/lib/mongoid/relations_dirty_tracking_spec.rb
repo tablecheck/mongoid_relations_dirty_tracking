@@ -348,6 +348,55 @@ RSpec.describe Mongoid::RelationsDirtyTracking do
         expect(TestDocumentWithExceptOption.track_relation?('one_related')).to be true
       end
     end
+
+    context 'with the v1.0 default (no track_referenced option)' do
+      it 'tracks embedded relations' do
+        expect(TestDocumentDefault.track_relation?(:many_documents)).to be true
+      end
+
+      it 'does not track has_one relations' do
+        expect(TestDocumentDefault.track_relation?(:one_related)).to be false
+      end
+
+      it 'does not track has_many relations' do
+        expect(TestDocumentDefault.track_relation?(:many_related)).to be false
+      end
+    end
+  end
+
+  describe 'v1.0 default behaviour — embedded only' do
+    describe '.tracked_relations' do
+      subject { TestDocumentDefault.tracked_relations }
+
+      it { is_expected.to include('many_documents') }
+      it { is_expected.to_not include('one_related') }
+      it { is_expected.to_not include('many_related') }
+    end
+
+    describe '#relations_dirty_tracking_options' do
+      it 'defaults track_referenced to false' do
+        expect(TestDocumentDefault.relations_dirty_tracking_options[:track_referenced]).to be false
+      end
+
+      it 'is true when the macro was called with track_referenced: true' do
+        expect(TestDocument.relations_dirty_tracking_options[:track_referenced]).to be true
+      end
+    end
+
+    context 'when an embedded document is added' do
+      subject(:doc) { TestDocumentDefault.create }
+
+      before do
+        @embedded_doc = TestEmbeddedDocument.new
+        doc.many_documents << @embedded_doc
+      end
+
+      its(:relations_changed?) { is_expected.to be true }
+
+      it 'reports the embedded change' do
+        expect(doc.relation_changes['many_documents']).to eq([[], [@embedded_doc.attributes]])
+      end
+    end
   end
 
   describe 'by default the versions relation is not tracked' do
